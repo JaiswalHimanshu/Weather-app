@@ -4,18 +4,19 @@ var geocodeAddress = (address, callback) => {
   var encodedAddress = encodeURIComponent(address);
 
   request({
-    url: `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}`,
+    url: `https://api.opencagedata.com/geocode/v1/json?q=${encodedAddress}&key=3cd79638e6ad4060b6d96f54d984483b`,
     json: true
   }, (error, response, body) => {
     if (error) {
       callback('Unable to connect to Google servers.');
-    } else if (body.status === 'ZERO_RESULTS') {
+    } else if (body.total_results === 0) {
       callback('Unable to find that address.');
-    } else if (body.status === 'OK') {
+    } else if (body.status.message === 'OK') {
+      console.log(body.results[0].formatted);
       callback(undefined, {
-        address: body.results[0].formatted_address,
-        latitude: body.results[0].geometry.location.lat,
-        longitude: body.results[0].geometry.location.lng
+        address: body.results[0].components.city_district,
+        latitude: body.results[0].bounds.northeast.lat,
+        longitude: body.results[0].bounds.northeast.lng
       });
     }
   });
